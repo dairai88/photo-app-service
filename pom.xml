@@ -13,6 +13,7 @@
     <module>PhotoAppDiscoveryService</module>
     <module>PhotoAppApiUsers</module>
     <module>PhotoAppApiAccountManagement</module>
+    <module>PhotoAppApiGateway</module>
   </modules>
 
   <name>photo-app-service</name>
