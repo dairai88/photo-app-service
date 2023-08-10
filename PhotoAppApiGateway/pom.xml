@@ -10,7 +10,7 @@
 
 	<artifactId>PhotoAppApiGateway</artifactId>
 	<name>PhotoAppApiGateway</name>
-	<description>Demo project for Spring Boot</description>
+	<description>Api Gateway</description>
 
 	<dependencies>
 		<dependency>
