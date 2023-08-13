@@ -5,11 +5,23 @@ spring:
     name: api-gateway
   cloud:
     gateway:
-      discovery:
-        locator:
-          enabled: true
-          lower-case-service-id: true
+      routes:
+        - id: users-status-check
+          uri: lb://users-ws
+          predicates:
+            - Path=/users-ws/users/status/check
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/users-ws/(?<segment>.*), /$\{segment}
 eureka:
   client:
     service-url:
       defaultZone: "http://localhost:8010/eureka"
+
+logging:
+  level:
+    org:
+      springframework:
+        cloud:
+          gateway: debug
