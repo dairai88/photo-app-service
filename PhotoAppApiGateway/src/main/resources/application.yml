@@ -9,11 +9,15 @@ spring:
         - id: users-status-check
           uri: lb://users-ws
           predicates:
-            - Path=/users-ws/users/status/check
+            - Path=/users/status/check
             - Method=GET
           filters:
             - RemoveRequestHeader=Cookie
-            - RewritePath=/users-ws/(?<segment>.*), /$\{segment}
+#            - RewritePath=/users-ws/(?<segment>.*), /$\{segment}
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
 eureka:
   client:
     service-url:
