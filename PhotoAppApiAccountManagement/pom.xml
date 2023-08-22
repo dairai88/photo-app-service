@@ -9,7 +9,6 @@
 	</parent>
 
 	<artifactId>PhotoAppApiAccountManagement</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
 	<name>PhotoAppApiAccountManagement</name>
 	<description>Account Management microservice</description>
 
