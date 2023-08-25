@@ -60,7 +60,7 @@ public class WebSecurity {
 			authorizeHttpRequests.requestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/**")).permitAll();
 		});
 
-		http.addFilter(new AuthenticationFilter(authenticationManager)).authenticationManager(authenticationManager);
+		http.addFilter(new AuthenticationFilter(usersService, env, authenticationManager)).authenticationManager(authenticationManager);
 
 		http.sessionManagement(
 				sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
