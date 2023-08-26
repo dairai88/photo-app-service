@@ -1,10 +1,14 @@
 package com.example.api.users.security;
 
-import java.io.IOException;
-import java.util.ArrayList;
-
 import com.example.api.users.service.UsersService;
 import com.example.api.users.shared.UserDto;
+import com.example.api.users.ui.model.LoginRequestModel;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
@@ -15,13 +19,14 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.example.api.users.ui.model.LoginRequestModel;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.IOException;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Date;
+import java.util.Objects;
 
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -61,7 +66,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
 	@Override
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
-			Authentication authResult) throws IOException, ServletException {
+			Authentication authResult) {
 
 		String username = ((User) authResult.getPrincipal()).getUsername();
 
@@ -69,7 +74,21 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
 		UserDto userDetails = usersService.getUserDetailsByEmail(username);
 
-		super.successfulAuthentication(request, response, chain, authResult);
+		String tokenSecret = Objects.requireNonNull(environment.getProperty("token.secret"));
+		byte[] secretKeyBytes = Base64.getEncoder().encode(tokenSecret.getBytes());
+		SecretKey secretKey = new SecretKeySpec(secretKeyBytes, SignatureAlgorithm.HS512.getJcaName());
+
+		Instant now = Instant.now();
+		String token = Jwts.builder().setSubject(userDetails.getUserId())
+				.setExpiration(Date.from(now
+						.plusMillis(Long.parseLong(Objects.requireNonNull(
+								environment.getProperty("token.expiration_time"))))))
+				.setIssuedAt(Date.from(now))
+				.signWith(secretKey, SignatureAlgorithm.HS512)
+				.compact();
+
+		response.addHeader("token", token);
+		response.addHeader("userId", userDetails.getUserId());
 	}
 
 }
