@@ -9,15 +9,38 @@ spring:
         - id: users-status-check
           uri: lb://users-ws
           predicates:
-            - Path=/users/status/check
+            - Path=/users-ws/users/status/check
             - Method=GET
           filters:
             - RemoveRequestHeader=Cookie
-#            - RewritePath=/users-ws/(?<segment>.*), /$\{segment}
-      discovery:
-        locator:
-          enabled: true
-          lower-case-service-id: true
+            - RewritePath=/users-ws/(?<segment>.*), /$\{segment}
+
+        - id: users-h2-console
+          uri: lb://users-ws
+          predicates:
+            - Path=/users-ws/h2-console/**
+            - Method=GET,POST,PUT,DELETE
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/users-ws/(?<segment>.*), /$\{segment}
+
+        - id: users-ws
+          uri: lb://users-ws
+          predicates:
+            - Path=/users-ws/users
+            - Method=POST
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/users-ws/(?<segment>.*), /$\{segment}
+
+        - id: users-ws-login
+          uri: lb://users-ws
+          predicates:
+            - Path=/users-ws/users/login
+            - Method=POST
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/users-ws/(?<segment>.*), /$\{segment}
 eureka:
   client:
     service-url:
