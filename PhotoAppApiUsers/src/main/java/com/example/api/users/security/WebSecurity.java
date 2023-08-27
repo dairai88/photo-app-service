@@ -50,6 +50,11 @@ public class WebSecurity {
 		authenticationManagerBuilder.userDetailsService(usersService).passwordEncoder(bCryptPasswordEncoder);
 		AuthenticationManager authenticationManager = authenticationManagerBuilder.build();
 
+		// Create AuthenticationFilter
+		AuthenticationFilter authenticationFilter =
+				new AuthenticationFilter(usersService, env, authenticationManager);
+		authenticationFilter.setFilterProcessesUrl(env.getProperty("login.url.path"));
+
 		http.csrf(AbstractHttpConfigurer::disable);
 
 		http.authorizeHttpRequests(authorizeHttpRequests -> {
@@ -60,7 +65,7 @@ public class WebSecurity {
 			authorizeHttpRequests.requestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/**")).permitAll();
 		});
 
-		http.addFilter(new AuthenticationFilter(usersService, env, authenticationManager)).authenticationManager(authenticationManager);
+		http.addFilter(authenticationFilter).authenticationManager(authenticationManager);
 
 		http.sessionManagement(
 				sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

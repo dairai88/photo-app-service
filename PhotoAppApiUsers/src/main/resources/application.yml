@@ -39,3 +39,7 @@ token:
 logging:
   level:
     '[org.springframework.security]': debug
+
+login:
+  url:
+    path: '/users/login'
