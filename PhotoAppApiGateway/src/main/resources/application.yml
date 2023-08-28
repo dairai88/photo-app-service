@@ -11,6 +11,7 @@ spring:
           predicates:
             - Path=/users-ws/users/status/check
             - Method=GET
+            - Header=Authorization, Bearer (.*)
           filters:
             - RemoveRequestHeader=Cookie
             - RewritePath=/users-ws/(?<segment>.*), /$\{segment}
