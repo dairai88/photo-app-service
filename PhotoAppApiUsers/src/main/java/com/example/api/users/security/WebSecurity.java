@@ -59,8 +59,12 @@ public class WebSecurity {
 
 		http.authorizeHttpRequests(authorizeHttpRequests -> {
 
-			authorizeHttpRequests.requestMatchers(mvc.pattern(HttpMethod.POST, "/users")).access(
-					new WebExpressionAuthorizationManager("hasIpAddress('" + env.getProperty("gateway.ip") + "')"));
+			authorizeHttpRequests.requestMatchers(
+					mvc.pattern(HttpMethod.GET, "/users/status/check"),
+					mvc.pattern(HttpMethod.POST, "/users"))
+					.access(
+							new WebExpressionAuthorizationManager(
+									"hasIpAddress('" + env.getProperty("gateway.ip") + "')"));
 
 			authorizeHttpRequests.requestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/**")).permitAll();
 		});
