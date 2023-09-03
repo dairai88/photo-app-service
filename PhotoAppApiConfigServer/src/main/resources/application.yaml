@@ -4,3 +4,13 @@ server:
 spring:
   application:
     name: config-server
+
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://gitlab.steedos.cn/sundalei/photoappconfiguration.git
+          username: sundalei
+          password: oarnud9I
+          clone-on-start: true
+          default-label: main
