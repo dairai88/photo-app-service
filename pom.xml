@@ -14,6 +14,7 @@
     <module>PhotoAppApiUsers</module>
     <module>PhotoAppApiAccountManagement</module>
     <module>PhotoAppApiGateway</module>
+    <module>PhotoAppApiConfigServer</module>
   </modules>
 
   <name>photo-app-service</name>
