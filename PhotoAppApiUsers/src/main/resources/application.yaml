@@ -38,3 +38,12 @@ eureka:
 logging:
   level:
     '[org.springframework.security]': debug
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - beans
+          - health
+          - mappings
