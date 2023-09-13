@@ -47,3 +47,4 @@ management:
           - beans
           - health
           - mappings
+          - httpexchanges
