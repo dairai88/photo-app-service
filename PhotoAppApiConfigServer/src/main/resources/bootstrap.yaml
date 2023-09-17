@@ -1,0 +1,6 @@
+encrypt:
+#  key: fhd3945dfdeamcpqADIECD920392KCDdee
+  key-store:
+    password: oarnud9I
+    alias: apiEncryptionKey
+    location: apiEncryptionKey.jks
