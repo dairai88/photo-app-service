@@ -60,7 +60,7 @@ public class WebSecurity {
 		http.authorizeHttpRequests(authorizeHttpRequests -> {
 
 			authorizeHttpRequests.requestMatchers(
-					mvc.pattern(HttpMethod.GET, "/users/status/check"),
+					mvc.pattern(HttpMethod.GET, "/users/**"),
 					mvc.pattern(HttpMethod.GET, "/actuator/**"),
 					mvc.pattern(HttpMethod.POST, "/users"))
 					.access(

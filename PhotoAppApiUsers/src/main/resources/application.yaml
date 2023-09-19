@@ -30,7 +30,11 @@ eureka:
 
 logging:
   level:
-    '[org.springframework.security]': debug
+    org:
+      springframework:
+        security: debug
+        web:
+          client: debug
 
 management:
   endpoints:
