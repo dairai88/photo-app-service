@@ -1,44 +1,35 @@
 package com.example.api.users.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
-
+import com.example.api.users.data.AlbumsServiceClient;
+import com.example.api.users.data.UserEntity;
+import com.example.api.users.data.UsersRepository;
+import com.example.api.users.shared.UserDto;
 import com.example.api.users.ui.model.AlbumResponseModel;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.core.env.Environment;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.example.api.users.data.UserEntity;
-import com.example.api.users.data.UsersRepository;
-import com.example.api.users.shared.UserDto;
-import org.springframework.web.client.RestTemplate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class UsersServiceImpl implements UsersService {
 
     private final UsersRepository usersRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final RestTemplate restTemplate;
-    private final Environment environment;
+    private final AlbumsServiceClient albumsServiceClient;
 
     public UsersServiceImpl(UsersRepository usersRepository,
                             BCryptPasswordEncoder bCryptPasswordEncoder,
-                            RestTemplate restTemplate,
-                            Environment environment) {
+                            AlbumsServiceClient albumsServiceClient) {
         this.usersRepository = usersRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-        this.restTemplate = restTemplate;
-        this.environment = environment;
+        this.albumsServiceClient = albumsServiceClient;
     }
 
     @Override
@@ -82,13 +73,7 @@ public class UsersServiceImpl implements UsersService {
 
         UserDto userDto = getModelMapper().map(userEntity, UserDto.class);
 
-        String albumsUrl = String.format(Objects.requireNonNull(environment.getProperty("albums.url")), userId);
-        ResponseEntity<List<AlbumResponseModel>> albumsListResponse
-                = restTemplate.exchange(albumsUrl,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<List<AlbumResponseModel>>() {});
-        List<AlbumResponseModel> albumsList = albumsListResponse.getBody();
+        List<AlbumResponseModel> albumsList = albumsServiceClient.getAlbums(userId);
 
         userDto.setAlbums(albumsList);
         
