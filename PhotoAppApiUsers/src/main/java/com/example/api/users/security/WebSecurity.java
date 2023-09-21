@@ -60,9 +60,10 @@ public class WebSecurity {
 		http.authorizeHttpRequests(authorizeHttpRequests -> {
 
 			authorizeHttpRequests.requestMatchers(
-					mvc.pattern(HttpMethod.GET, "/users/**"),
-					mvc.pattern(HttpMethod.GET, "/actuator/**"),
-					mvc.pattern(HttpMethod.POST, "/users"))
+							mvc.pattern(HttpMethod.GET, "/users/**"),
+							mvc.pattern(HttpMethod.GET, "/actuator/**"),
+							mvc.pattern(HttpMethod.POST, "/users"),
+							mvc.pattern(HttpMethod.GET, "/error/**"))
 					.access(
 							new WebExpressionAuthorizationManager(
 									"hasIpAddress('" + env.getProperty("gateway.ip") + "')"));

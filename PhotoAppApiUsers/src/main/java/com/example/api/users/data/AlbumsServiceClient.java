@@ -11,6 +11,6 @@ import com.example.api.users.ui.model.AlbumResponseModel;
 @FeignClient(name = "albums-ws")
 public interface AlbumsServiceClient {
 
-    @GetMapping("/users/{id}/albums")
+    @GetMapping("/users/{id}/albumss")
     public List<AlbumResponseModel> getAlbums(@PathVariable("id") String id);
 }
