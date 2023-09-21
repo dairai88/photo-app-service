@@ -1,5 +1,6 @@
 package com.example.api.users;
 
+import feign.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.web.exchanges.HttpExchangeRepository;
 import org.springframework.boot.actuate.web.exchanges.InMemoryHttpExchangeRepository;
@@ -34,6 +35,11 @@ public class PhotoAppApiUsersApplication {
 	@LoadBalanced
 	RestTemplate restTemplate() {
 		return new RestTemplate();
+	}
+
+	@Bean
+	Logger.Level feignLogger() {
+		return Logger.Level.FULL;
 	}
 
 }

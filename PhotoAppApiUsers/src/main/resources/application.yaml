@@ -35,6 +35,12 @@ logging:
         security: debug
         web:
           client: debug
+    com:
+      example:
+        api:
+          users:
+            data:
+              AlbumsServiceClient: debug
 
 management:
   endpoints:
