@@ -41,5 +41,4 @@ public class PhotoAppApiUsersApplication {
 	Logger.Level feignLogger() {
 		return Logger.Level.FULL;
 	}
-
 }

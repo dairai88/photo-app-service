@@ -5,11 +5,8 @@ import com.example.api.users.data.UserEntity;
 import com.example.api.users.data.UsersRepository;
 import com.example.api.users.shared.UserDto;
 import com.example.api.users.ui.model.AlbumResponseModel;
-import feign.FeignException;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,8 +19,6 @@ import java.util.UUID;
 
 @Service
 public class UsersServiceImpl implements UsersService {
-
-    private static final Logger LOG = LoggerFactory.getLogger(UsersServiceImpl.class);
 
     private final UsersRepository usersRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -78,12 +73,7 @@ public class UsersServiceImpl implements UsersService {
 
         UserDto userDto = getModelMapper().map(userEntity, UserDto.class);
 
-        List<AlbumResponseModel> albumsList = null;
-        try {
-            albumsList = albumsServiceClient.getAlbums(userId);
-        } catch (FeignException ex) {
-            LOG.error(ex.getLocalizedMessage());
-        }
+        List<AlbumResponseModel> albumsList = albumsServiceClient.getAlbums(userId);
 
         userDto.setAlbums(albumsList);
         
