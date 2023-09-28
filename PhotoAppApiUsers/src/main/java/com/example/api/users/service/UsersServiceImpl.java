@@ -7,6 +7,8 @@ import com.example.api.users.shared.UserDto;
 import com.example.api.users.ui.model.AlbumResponseModel;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -19,6 +21,8 @@ import java.util.UUID;
 
 @Service
 public class UsersServiceImpl implements UsersService {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(UsersServiceImpl.class);
 
     private final UsersRepository usersRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -72,8 +76,12 @@ public class UsersServiceImpl implements UsersService {
                 .orElseThrow(() -> new UsernameNotFoundException("user with userId " + userId + " is not found"));
 
         UserDto userDto = getModelMapper().map(userEntity, UserDto.class);
+        
+        LOG.debug("Before calling albums microservice");
 
         List<AlbumResponseModel> albumsList = albumsServiceClient.getAlbums(userId);
+        
+        LOG.debug("After calling albums microservice");
 
         userDto.setAlbums(albumsList);
         

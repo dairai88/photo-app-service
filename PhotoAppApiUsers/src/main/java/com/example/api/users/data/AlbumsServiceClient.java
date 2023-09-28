@@ -2,6 +2,7 @@ package com.example.api.users.data;
 
 import com.example.api.users.ui.model.AlbumResponseModel;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -16,6 +17,7 @@ public interface AlbumsServiceClient {
     Logger LOG = LoggerFactory.getLogger(AlbumsServiceClient.class);
 
     @GetMapping("/users/{id}/albums")
+    @Retry(name = "albums-ws")
     @CircuitBreaker(name = "albums-ws", fallbackMethod = "getAlbumsFallback")
     List<AlbumResponseModel> getAlbums(@PathVariable("id") String id);
 
