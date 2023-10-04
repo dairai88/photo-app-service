@@ -46,6 +46,8 @@ logging:
   pattern:
     # https://stackoverflow.com/questions/75965216/micrometer-tracing-traceid-and-spanid-dont-show-up-in-logs-after-upgrading-from
     level: '%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]'
+  file:
+    name: users-ws.log
 
 management:
   endpoints:
