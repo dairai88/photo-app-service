@@ -1,5 +1,6 @@
 package com.example.api.users.security;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -53,7 +54,8 @@ public class WebSecurity {
 		// Create AuthenticationFilter
 		AuthenticationFilter authenticationFilter =
 				new AuthenticationFilter(usersService, env, authenticationManager);
-		authenticationFilter.setFilterProcessesUrl(env.getProperty("login.url.path"));
+		String loginPath = env.getProperty("login.url.path");
+		authenticationFilter.setFilterProcessesUrl(StringUtils.isEmpty(loginPath) ? "/login" : loginPath);
 
 		http.csrf(AbstractHttpConfigurer::disable);
 
