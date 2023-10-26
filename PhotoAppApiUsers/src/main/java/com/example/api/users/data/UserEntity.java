@@ -3,74 +3,92 @@ package com.example.api.users.data;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
+import java.util.Collection;
 
 @Entity
 @Table(name = "users")
 public class UserEntity implements Serializable {
-    @Id
-    @GeneratedValue
-    private long id;
+	
+	private static final long serialVersionUID = -2671973421246871799L;
 
-    @Column(nullable = false, length = 50)
-    private String firstName;
+	@Id
+	@GeneratedValue
+	private long id;
 
-    @Column(nullable = false, length = 50)
-    private String lastName;
+	@Column(nullable = false, length = 50)
+	private String firstName;
 
-    @Column(nullable = false, length = 120, unique = true)
-    private String email;
+	@Column(nullable = false, length = 50)
+	private String lastName;
 
-    @Column(nullable = false, unique = true)
-    private String userId;
+	@Column(nullable = false, length = 120, unique = true)
+	private String email;
 
-    @Column(nullable = false, unique = true)
-    private String encryptedPassword;
+	@Column(nullable = false, unique = true)
+	private String userId;
 
-    public long getId() {
-        return id;
-    }
+	@Column(nullable = false, unique = true)
+	private String encryptedPassword;
 
-    public void setId(long id) {
-        this.id = id;
-    }
+	@ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+	@JoinTable(name = "users_roles", 
+			joinColumns = @JoinColumn(name = "users_id", referencedColumnName = "id"), 
+			inverseJoinColumns = @JoinColumn(name = "roles_id", referencedColumnName = "id"))
+	private Collection<RoleEntity> roles;
 
-    public String getFirstName() {
-        return firstName;
-    }
+	public long getId() {
+		return id;
+	}
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
+	public void setId(long id) {
+		this.id = id;
+	}
 
-    public String getLastName() {
-        return lastName;
-    }
+	public String getFirstName() {
+		return firstName;
+	}
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
 
-    public String getEmail() {
-        return email;
-    }
+	public String getLastName() {
+		return lastName;
+	}
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
 
-    public String getUserId() {
-        return userId;
-    }
+	public String getEmail() {
+		return email;
+	}
 
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
+	public void setEmail(String email) {
+		this.email = email;
+	}
 
-    public String getEncryptedPassword() {
-        return encryptedPassword;
-    }
+	public String getUserId() {
+		return userId;
+	}
 
-    public void setEncryptedPassword(String encryptedPassword) {
-        this.encryptedPassword = encryptedPassword;
-    }
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public String getEncryptedPassword() {
+		return encryptedPassword;
+	}
+
+	public void setEncryptedPassword(String encryptedPassword) {
+		this.encryptedPassword = encryptedPassword;
+	}
+
+	public Collection<RoleEntity> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(Collection<RoleEntity> roles) {
+		this.roles = roles;
+	}
 }
