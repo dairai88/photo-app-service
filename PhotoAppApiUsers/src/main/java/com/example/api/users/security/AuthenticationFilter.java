@@ -34,7 +34,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
 	private final UsersService usersService;
 	private final Environment environment;
-	
+
 	public AuthenticationFilter(
 			UsersService usersService,
 			Environment environment,
@@ -47,19 +47,18 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException {
-		
+
 		try {
-			
-			LoginRequestModel creds = 
-					new ObjectMapper().readValue(request.getInputStream(), LoginRequestModel.class);
+
+			LoginRequestModel creds = new ObjectMapper().readValue(request.getInputStream(), LoginRequestModel.class);
 
 			LOG.info("User {} is trying to log in", creds.getEmail());
-			
+
 			return this.getAuthenticationManager().authenticate(
 					new UsernamePasswordAuthenticationToken(
 							creds.getEmail(), creds.getPassword(), new ArrayList<>()));
 		} catch (IOException e) {
-			
+
 			throw new RuntimeException(e);
 		}
 	}
@@ -79,7 +78,9 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 		SecretKey secretKey = new SecretKeySpec(secretKeyBytes, SignatureAlgorithm.HS512.getJcaName());
 
 		Instant now = Instant.now();
-		String token = Jwts.builder().setSubject(userDetails.getUserId())
+		String token = Jwts.builder()
+				.claim("scope", authResult.getAuthorities())
+				.setSubject(userDetails.getUserId())
 				.setExpiration(Date.from(now
 						.plusMillis(Long.parseLong(Objects.requireNonNull(
 								environment.getProperty("token.expiration_time"))))))

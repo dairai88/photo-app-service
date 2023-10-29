@@ -1,6 +1,8 @@
 package com.example.api.users.service;
 
 import com.example.api.users.data.AlbumsServiceClient;
+import com.example.api.users.data.AuthorityEntity;
+import com.example.api.users.data.RoleEntity;
 import com.example.api.users.data.UserEntity;
 import com.example.api.users.data.UsersRepository;
 import com.example.api.users.shared.UserDto;
@@ -9,6 +11,8 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,6 +20,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -56,8 +61,19 @@ public class UsersServiceImpl implements UsersService {
 		
 		UserEntity userEntity = usersRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException(email));
+
+        Collection<GrantedAuthority> authorities = new ArrayList<>();
+        Collection<RoleEntity> roles = userEntity.getRoles();
+
+        roles.forEach(role -> {
+
+            authorities.add(new SimpleGrantedAuthority(role.getName()));
+
+            Collection<AuthorityEntity> authorityEntities = role.getAuthorities();
+            authorityEntities.forEach(authorityEntity -> authorities.add(new SimpleGrantedAuthority(authorityEntity.getName())));
+        });
 		
-		return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), new ArrayList<>());
+		return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), authorities);
 	}
 
     @Override
