@@ -16,6 +16,7 @@
     <module>PhotoAppApiGateway</module>
     <module>PhotoAppApiConfigServer</module>
     <module>PhotoAppApiAlbums</module>
+    <module>JwtAuthorities</module>
   </modules>
 
   <name>photo-app-service</name>
