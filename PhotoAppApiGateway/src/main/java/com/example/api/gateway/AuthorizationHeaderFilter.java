@@ -76,16 +76,15 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 
 		String secretToken = Objects.requireNonNull(environment.getProperty("token.secret"));
 		byte[] secretKeyBytes = Base64.getEncoder().encode(secretToken.getBytes());
-		SecretKey signingKey = new SecretKeySpec(secretKeyBytes, SignatureAlgorithm.HS512.getJcaName());
+		SecretKey signingKey = new SecretKeySpec(secretKeyBytes, "HmacSHA512");
 
-		JwtParser jwtParser = Jwts.parserBuilder()
-				.setSigningKey(signingKey)
+		JwtParser jwtParser = Jwts.parser()
+				.verifyWith(signingKey)
 				.build();
 
 		try {
-			@SuppressWarnings({"unchecked", "rawtypes"})
-			Jwt<Header, Claims> parsedToken = jwtParser.parse(jwt);
-			subject = parsedToken.getBody().getSubject();
+			Jws<Claims> parsedToken = jwtParser.parseSignedClaims(jwt);
+			subject = parsedToken.getPayload().getSubject();
 		} catch (Exception e) {
 			LOG.error("JWT parse error. {}", e.getMessage());
 			isValid = false;

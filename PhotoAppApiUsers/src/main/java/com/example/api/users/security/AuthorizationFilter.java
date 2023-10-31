@@ -8,6 +8,7 @@ import java.util.Objects;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
@@ -16,12 +17,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Header;
-import io.jsonwebtoken.Jwt;
-import io.jsonwebtoken.JwtParser;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -70,16 +65,15 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
 		
 		String secretToken = Objects.requireNonNull(environment.getProperty("token.secret"));
 		byte[] secretKeyBytes = Base64.getEncoder().encode(secretToken.getBytes());
-		SecretKey signingKey = new SecretKeySpec(secretKeyBytes, SignatureAlgorithm.HS512.getJcaName());
+		SecretKey signingKey = new SecretKeySpec(secretKeyBytes, "HmacSHA512");
 
-		JwtParser jwtParser = Jwts.parserBuilder()
-				.setSigningKey(signingKey)
+		JwtParser jwtParser = Jwts.parser()
+				.verifyWith(signingKey)
 				.build();
 
 		try {
-			@SuppressWarnings({"unchecked", "rawtypes"})
-			Jwt<Header, Claims> parsedToken = jwtParser.parse(token);
-			userId = parsedToken.getBody().getSubject();
+			Jws<Claims> parsedToken = jwtParser.parseSignedClaims(token);
+			userId = parsedToken.getPayload().getSubject();
 		} catch (Exception e) {
 			LOG.error("JWT parse error. {}", e.getMessage());
 		}

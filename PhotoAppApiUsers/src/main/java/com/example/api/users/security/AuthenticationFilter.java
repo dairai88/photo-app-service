@@ -5,7 +5,6 @@ import com.example.api.users.shared.UserDto;
 import com.example.api.users.ui.model.LoginRequestModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -75,17 +74,17 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
 		String tokenSecret = Objects.requireNonNull(environment.getProperty("token.secret"));
 		byte[] secretKeyBytes = Base64.getEncoder().encode(tokenSecret.getBytes());
-		SecretKey secretKey = new SecretKeySpec(secretKeyBytes, SignatureAlgorithm.HS512.getJcaName());
+		SecretKey secretKey = new SecretKeySpec(secretKeyBytes, "HmacSHA512");
 
 		Instant now = Instant.now();
 		String token = Jwts.builder()
 				.claim("scope", authResult.getAuthorities())
-				.setSubject(userDetails.getUserId())
-				.setExpiration(Date.from(now
+				.subject(userDetails.getUserId())
+				.expiration(Date.from(now
 						.plusMillis(Long.parseLong(Objects.requireNonNull(
 								environment.getProperty("token.expiration_time"))))))
-				.setIssuedAt(Date.from(now))
-				.signWith(secretKey, SignatureAlgorithm.HS512)
+				.issuedAt(Date.from(now))
+				.signWith(secretKey, Jwts.SIG.HS512)
 				.compact();
 
 		response.addHeader("token", token);
