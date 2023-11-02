@@ -49,13 +49,13 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
 		try {
 
-			LoginRequestModel creds = new ObjectMapper().readValue(request.getInputStream(), LoginRequestModel.class);
+			LoginRequestModel credential = new ObjectMapper().readValue(request.getInputStream(), LoginRequestModel.class);
 
-			LOG.info("User {} is trying to log in", creds.getEmail());
+			LOG.info("User {} is trying to log in", credential.getEmail());
 
 			return this.getAuthenticationManager().authenticate(
 					new UsernamePasswordAuthenticationToken(
-							creds.getEmail(), creds.getPassword(), new ArrayList<>()));
+							credential.getEmail(), credential.getPassword(), new ArrayList<>()));
 		} catch (IOException e) {
 
 			throw new RuntimeException(e);
@@ -74,7 +74,11 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
 		String tokenSecret = Objects.requireNonNull(environment.getProperty("token.secret"));
 		byte[] secretKeyBytes = Base64.getEncoder().encode(tokenSecret.getBytes());
-		SecretKey secretKey = new SecretKeySpec(secretKeyBytes, "HmacSHA512");
+
+		String algorithm = Jwts.SIG.HS512.key().build().getAlgorithm();
+		LOG.info("Algorithm {}.", algorithm);
+
+		SecretKey secretKey = new SecretKeySpec(secretKeyBytes, algorithm);
 
 		Instant now = Instant.now();
 		String token = Jwts.builder()
