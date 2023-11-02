@@ -62,10 +62,6 @@ public class InitialUsersSetup {
         createRole(Roles.ROLE_USER.name(), List.of(readAuthorityEntity, writeAuthorityEntity));
         RoleEntity adminRoleEntity = createRole(Roles.ROLE_ADMIN.name(), List.of(readAuthorityEntity, writeAuthorityEntity, deleteAuthorityEntity));
 
-        if (adminRoleEntity == null) {
-            return;
-        }
-
         createUser("dalei@example.com", List.of(adminRoleEntity));
     }
 

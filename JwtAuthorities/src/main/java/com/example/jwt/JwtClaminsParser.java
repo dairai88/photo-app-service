@@ -53,7 +53,7 @@ public class JwtClaminsParser {
 
     }
 
-    public Collection<? extends GrantedAuthority> getUserAuthorities() {
+    public Collection<GrantedAuthority> getUserAuthorities() {
 
         Object payload = jwtObject.getPayload();
 

@@ -66,7 +66,7 @@ public class WebSecurity {
 			authorizeHttpRequests.requestMatchers(
 							mvc.pattern(HttpMethod.GET, "/users/**"),
 							mvc.pattern(HttpMethod.GET, "/actuator/**"),
-							mvc.pattern(HttpMethod.POST, "/users"),
+							mvc.pattern(HttpMethod.POST, "/users/**"),
 							mvc.pattern(HttpMethod.GET, "/error/**"))
 					.access(
 							new WebExpressionAuthorizationManager(
