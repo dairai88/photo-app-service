@@ -12,7 +12,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -46,12 +46,20 @@ public class UsersController {
     }
 
     @GetMapping(value = "/{userId}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
-    // @PreAuthorize("principal == #userId")
-    @PostAuthorize("principal == returnObject.body.userId")
+    @PreAuthorize("hasRole('ADMIN') or principal == #userId")
+    // @PostAuthorize("principal == returnObject.body.userId")
     public ResponseEntity<UserResponseModel> getUser(@PathVariable String userId) {
 
         UserDto userDto = usersService.getUserByUserId(userId);
         UserResponseModel returnValue = new ModelMapper().map(userDto, UserResponseModel.class);
         return ResponseEntity.status(HttpStatus.OK).body(returnValue);
+    }
+
+    @DeleteMapping("/{userId}")
+    @PreAuthorize("hasRole('ADMIN') or principal == #userId")
+    public String deleteUser(@PathVariable String userId) {
+
+        // Delete user logic here
+        return "Deleting user with id " + userId;
     }
 }

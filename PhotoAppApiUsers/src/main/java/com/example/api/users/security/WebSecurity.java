@@ -67,7 +67,8 @@ public class WebSecurity {
 							mvc.pattern(HttpMethod.GET, "/users/**"),
 							mvc.pattern(HttpMethod.GET, "/actuator/**"),
 							mvc.pattern(HttpMethod.POST, "/users/**"),
-							mvc.pattern(HttpMethod.GET, "/error/**"))
+							mvc.pattern(HttpMethod.GET, "/error/**"),
+							mvc.pattern(HttpMethod.DELETE, "/users/**"))
 					.access(
 							new WebExpressionAuthorizationManager(
 									"hasIpAddress('" + env.getProperty("gateway.ip") + "')"));
