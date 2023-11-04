@@ -86,7 +86,7 @@ public class UsersServiceImpl implements UsersService {
     }
 
     @Override
-    public UserDto getUserByUserId(String userId) {
+    public UserDto getUserByUserId(String userId, String authorization) {
 
         UserEntity userEntity = usersRepository.findByUserId(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("user with userId " + userId + " is not found"));
@@ -95,7 +95,7 @@ public class UsersServiceImpl implements UsersService {
         
         LOG.debug("Before calling albums microservice");
 
-        List<AlbumResponseModel> albumsList = albumsServiceClient.getAlbums(userId);
+        List<AlbumResponseModel> albumsList = albumsServiceClient.getAlbums(userId, authorization);
         
         LOG.debug("After calling albums microservice");
 
