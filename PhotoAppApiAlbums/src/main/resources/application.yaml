@@ -7,6 +7,11 @@ spring:
   devtools:
     restart:
       enabled: true
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
 
 eureka:
   client:
@@ -15,7 +20,7 @@ eureka:
 
   instance:
     instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
-    
+    prefer-ip-address: true
 management:
   endpoints:
     web:

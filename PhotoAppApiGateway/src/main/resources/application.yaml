@@ -64,6 +64,17 @@ spring:
             - AuthorizationHeaderFilter
             - RewritePath=/users-ws/(?<segment>.*), /$\{segment}
 
+        - id: albums-ws
+          uri: lb://albums-ws
+          predicates:
+            - Path=/albums-ws/**
+            - Method=POST,GET,PUT,DELETE
+            - Header=Authorization, Bearer (.*)
+          filters:
+            - RemoveRequestHeader=Cookie
+            - AuthorizationHeaderFilter
+            - RewritePath=/albums-ws/(?<segment>.*), /$\{segment}
+
   rabbitmq:
     host: localhost
     port: 5672
