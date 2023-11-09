@@ -53,6 +53,17 @@ spring:
             - RemoveRequestHeader=Cookie
             - RewritePath=/users-ws/(?<segment>.*), /$\{segment}
 
+        - id: users-ws-authority
+          uri: lb://users-ws
+          predicates:
+            - Path=/users-ws/users/*/role
+            - Method=POST
+            - Header=Authorization, Bearer(.*)
+          filters:
+            - RemoveRequestHeader=Cookie
+            - AuthorizationHeaderFilter
+            - RewritePath=/users-ws/(?<segment>.*), /$\{segment}
+
         - id: users-ws-get-update-delete
           uri: lb://users-ws
           predicates:

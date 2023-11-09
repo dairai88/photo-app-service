@@ -2,6 +2,7 @@ package com.example.api.users.ui.controllers;
 
 import com.example.api.users.service.UsersService;
 import com.example.api.users.shared.UserDto;
+import com.example.api.users.ui.model.RoleInfoModel;
 import com.example.api.users.ui.model.CreateUserRequestModel;
 import com.example.api.users.ui.model.CreateUserResponseModel;
 import com.example.api.users.ui.model.UserResponseModel;
@@ -43,6 +44,18 @@ public class UsersController {
         CreateUserResponseModel returnValue = modelMapper.map(createdUser, CreateUserResponseModel.class);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(returnValue);
+    }
+
+    /**
+     * Set role for user with userId
+     * @param roleInfoModel
+     * @return
+     */
+    @PostMapping("/{userId}/role")
+    public String setUserAuthority(@PathVariable String userId, @RequestBody RoleInfoModel roleInfoModel) {
+
+        usersService.setUserRole(userId, roleInfoModel);
+        return "set user role " + userId;
     }
 
     @GetMapping(value = "/{userId}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
