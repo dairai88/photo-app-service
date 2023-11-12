@@ -19,6 +19,7 @@ import reactor.core.publisher.Mono;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
+import java.util.List;
 import java.util.Objects;
 
 @Component
@@ -39,7 +40,7 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 
 	@Override
 	public GatewayFilter apply(Config config) {
-		
+
 		return (exchange, chain) -> {
 
 			ServerHttpRequest request = exchange.getRequest();
@@ -48,7 +49,8 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 				return onError(exchange, "No authorization header");
 			}
 
-			String authorizationHeader = Objects.requireNonNull(request.getHeaders().get(HttpHeaders.AUTHORIZATION)).get(0);
+			String authorizationHeader = Objects.requireNonNull(request.getHeaders().get(HttpHeaders.AUTHORIZATION))
+					.get(0);
 			String jwt = authorizationHeader.replace("Bearer", "").trim();
 
 			LOG.info("jwt token {}, start with blank? {}", jwt, jwt.startsWith(" "));
@@ -97,6 +99,44 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 		}
 
 		return isValid;
+	}
+
+	private List<String> getAuthorities(String jwt) {
+		List<String> returnValue = new ArrayList<>();
+
+		String secretToken = Objects.requireNonNull(environment.getProperty("token.secret"));
+		byte[] secretKeyBytes = Base64.getEncoder().encode(secretToken.getBytes());
+
+		String algorithm = Jwts.SIG.HS512.key().build().getAlgorithm();
+		SecretKey signingKey = new SecretKeySpec(secretKeyBytes, algorithm);
+
+		JwtParser jwtParser = Jwts.parser()
+				.verifyWith(signingKey)
+				.build();
+
+		try {
+			Jwt<?, ?> jwtObject = jwtParser.parse(jwt);
+			Object payload = jwtObject.getPayload();
+
+			if (payload instanceof Claims claims) {
+				@SuppressWarnings("unchecked")
+				List<Map<String, String>> scopeValues = claims.get("scope", List.class);
+
+				List<String> authorities = scopeValues.stream().map(scopeValue -> scopeValue.get("authority"))
+						.collect(Collectors.toList());
+				
+				returnValue.addAll(authorities);
+			}
+		} catch (Exception e) {
+			LOG.error("JWT parse error. {}", e.getMessage());
+			isValid = false;
+		}
+
+		if (subject == null || subject.isBlank()) {
+			isValid = false;
+		}
+
+		return returnValue;
 	}
 
 }
