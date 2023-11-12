@@ -18,9 +18,13 @@ import reactor.core.publisher.Mono;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Component
 public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<AuthorizationHeaderFilter.Config> {
@@ -102,6 +106,7 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 	}
 
 	private List<String> getAuthorities(String jwt) {
+		
 		List<String> returnValue = new ArrayList<>();
 
 		String secretToken = Objects.requireNonNull(environment.getProperty("token.secret"));
@@ -129,11 +134,6 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 			}
 		} catch (Exception e) {
 			LOG.error("JWT parse error. {}", e.getMessage());
-			isValid = false;
-		}
-
-		if (subject == null || subject.isBlank()) {
-			isValid = false;
 		}
 
 		return returnValue;
