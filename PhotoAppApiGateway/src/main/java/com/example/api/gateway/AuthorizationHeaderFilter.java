@@ -57,11 +57,7 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 					.get(0);
 			String jwt = authorizationHeader.replace("Bearer", "").trim();
 
-			LOG.info("jwt token {}, start with blank? {}", jwt, jwt.startsWith(" "));
-
-			if (!isJwtValid(jwt)) {
-				return onError(exchange, "JWT token is not valid");
-			}
+			List<String> authorities = getAuthorities(jwt);
 
 			return chain.filter(exchange);
 		};
@@ -76,37 +72,8 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 		return response.writeAndFlushWith(Flux.just(Flux.just(buffer)));
 	}
 
-	private boolean isJwtValid(String jwt) {
-		boolean isValid = true;
-		String subject = null;
-
-		String secretToken = Objects.requireNonNull(environment.getProperty("token.secret"));
-		byte[] secretKeyBytes = Base64.getEncoder().encode(secretToken.getBytes());
-
-		String algorithm = Jwts.SIG.HS512.key().build().getAlgorithm();
-		SecretKey signingKey = new SecretKeySpec(secretKeyBytes, algorithm);
-
-		JwtParser jwtParser = Jwts.parser()
-				.verifyWith(signingKey)
-				.build();
-
-		try {
-			Jws<Claims> parsedToken = jwtParser.parseSignedClaims(jwt);
-			subject = parsedToken.getPayload().getSubject();
-		} catch (Exception e) {
-			LOG.error("JWT parse error. {}", e.getMessage());
-			isValid = false;
-		}
-
-		if (subject == null || subject.isBlank()) {
-			isValid = false;
-		}
-
-		return isValid;
-	}
-
 	private List<String> getAuthorities(String jwt) {
-		
+
 		List<String> returnValue = new ArrayList<>();
 
 		String secretToken = Objects.requireNonNull(environment.getProperty("token.secret"));
