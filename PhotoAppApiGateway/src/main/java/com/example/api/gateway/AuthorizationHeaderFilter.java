@@ -1,6 +1,7 @@
 package com.example.api.gateway;
 
 import io.jsonwebtoken.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -20,6 +21,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +37,29 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 
 	public static class Config {
 
+		private String role;
+		private String authority;
+
+		public String getRole() {
+			return role;
+		}
+
+		public void setRole(String role) {
+			this.role = role;
+		}
+
+		public String getAuthority() {
+			return authority;
+		}
+
+		public void setAuthority(String authority) {
+			this.authority = authority;
+		}
+	}
+
+	@Override
+	public List<String> shortcutFieldOrder() {
+		return Arrays.asList("role", "authority");
 	}
 
 	public AuthorizationHeaderFilter(Environment environment) {
@@ -58,6 +83,9 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 			String jwt = authorizationHeader.replace("Bearer", "").trim();
 
 			List<String> authorities = getAuthorities(jwt);
+
+			String role = config.getRole();
+			String authority = config.getAuthority();
 
 			return chain.filter(exchange);
 		};

@@ -64,15 +64,26 @@ spring:
             - AuthorizationHeaderFilter
             - RewritePath=/users-ws/(?<segment>.*), /$\{segment}
 
-        - id: users-ws-get-update-delete
+        - id: users-ws-get-update
           uri: lb://users-ws
           predicates:
             - Path=/users-ws/users/**
-            - Method=GET,PUT,DELETE
+            - Method=GET,PUT
             - Header=Authorization, Bearer(.*)
           filters:
             - RemoveRequestHeader=Cookie
-            - AuthorizationHeaderFilter
+            - AuthorizationHeaderFilter=ROLE_ADMIN
+            - RewritePath=/users-ws/(?<segment>.*), /$\{segment}
+
+        - id: users-ws-delete
+          uri: lb://users-ws
+          predicates:
+            - Path=/users-ws/users/**
+            - Method=DELETE
+            - Header=Authorization, Bearer(.*)
+          filters:
+            - RemoveRequestHeader=Cookie
+            - AuthorizationHeaderFilter=ROLE_ADMIN,DELETE
             - RewritePath=/users-ws/(?<segment>.*), /$\{segment}
 
         - id: albums-ws
