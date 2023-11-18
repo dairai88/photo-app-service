@@ -83,7 +83,7 @@ spring:
             - Header=Authorization, Bearer(.*)
           filters:
             - RemoveRequestHeader=Cookie
-            - AuthorizationHeaderFilter=ROLE_ADMIN,DELETE
+            - AuthorizationHeaderFilter=ROLE_ADMIN DELETE
             - RewritePath=/users-ws/(?<segment>.*), /$\{segment}
 
         - id: albums-ws

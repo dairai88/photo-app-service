@@ -1,7 +1,10 @@
 package com.example.api.gateway;
 
-import io.jsonwebtoken.*;
-
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwt;
+import io.jsonwebtoken.JwtParser;
+import io.jsonwebtoken.Jwts;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -19,14 +22,7 @@ import reactor.core.publisher.Mono;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Component
 public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<AuthorizationHeaderFilter.Config> {
@@ -35,31 +31,19 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 
 	private final Environment environment;
 
+	@Getter
 	public static class Config {
 
-		private String role;
-		private String authority;
+		private List<String> authorities;
 
-		public String getRole() {
-			return role;
-		}
-
-		public void setRole(String role) {
-			this.role = role;
-		}
-
-		public String getAuthority() {
-			return authority;
-		}
-
-		public void setAuthority(String authority) {
-			this.authority = authority;
+		public void setAuthorities(String authorities) {
+			this.authorities = Arrays.asList(authorities.split(" "));
 		}
 	}
 
 	@Override
 	public List<String> shortcutFieldOrder() {
-		return Arrays.asList("role", "authority");
+		return List.of("authorities");
 	}
 
 	public AuthorizationHeaderFilter(Environment environment) {
@@ -75,7 +59,7 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 			ServerHttpRequest request = exchange.getRequest();
 
 			if (!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
-				return onError(exchange, "No authorization header");
+				return onError(exchange, "No authorization header", HttpStatus.UNAUTHORIZED);
 			}
 
 			String authorizationHeader = Objects.requireNonNull(request.getHeaders().get(HttpHeaders.AUTHORIZATION))
@@ -83,17 +67,24 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 			String jwt = authorizationHeader.replace("Bearer", "").trim();
 
 			List<String> authorities = getAuthorities(jwt);
+			List<String> configedAuthorities = config.getAuthorities();
 
-			String role = config.getRole();
-			String authority = config.getAuthority();
+			boolean hasRequiredAuthority =
+					authorities.stream().anyMatch(configedAuthorities::contains);
+
+			if (!hasRequiredAuthority) {
+				return onError(exchange,
+						"User is not authorized to perform this operation",
+						HttpStatus.FORBIDDEN);
+			}
 
 			return chain.filter(exchange);
 		};
 	}
 
-	private Mono<Void> onError(ServerWebExchange exchange, String message) {
+	private Mono<Void> onError(ServerWebExchange exchange, String message, HttpStatus httpStatus) {
 		ServerHttpResponse response = exchange.getResponse();
-		response.setStatusCode(HttpStatus.UNAUTHORIZED);
+		response.setStatusCode(httpStatus);
 
 		DataBuffer buffer = response.bufferFactory().allocateBuffer(message.length());
 		buffer.write(message.getBytes());
@@ -123,7 +114,7 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 				List<Map<String, String>> scopeValues = claims.get("scope", List.class);
 
 				List<String> authorities = scopeValues.stream().map(scopeValue -> scopeValue.get("authority"))
-						.collect(Collectors.toList());
+						.toList();
 				
 				returnValue.addAll(authorities);
 			}
