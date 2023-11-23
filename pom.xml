@@ -25,8 +25,8 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
-    <spring.boot.maven.plugin.version>3.1.5</spring.boot.maven.plugin.version>
-    <spring.boot.dependencies.version>3.1.5</spring.boot.dependencies.version>
+    <spring.boot.maven.plugin.version>3.1.6</spring.boot.maven.plugin.version>
+    <spring.boot.dependencies.version>3.1.6</spring.boot.dependencies.version>
     <spring.cloud-version>2022.0.4</spring.cloud-version>
     <jib.version>3.4.0</jib.version>
     <image>sundalei/${project.artifactId}:${project.version}</image>
