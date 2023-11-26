@@ -37,7 +37,7 @@ public class AlbumsController {
                     MediaType.APPLICATION_JSON_VALUE,
                     MediaType.APPLICATION_XML_VALUE,
             })
-    public List<AlbumResponseModel> userAlbums(@PathVariable String id) {
+    public List<AlbumResponseModel> userAlbums(@PathVariable("id") String id) {
 
         List<AlbumResponseModel> returnValue = new ArrayList<>();
 
